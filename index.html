@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beard Cycle Tracker</title>
+    <!-- REQUIRED for PWA Installation to work -->
+    <link rel="manifest" href="manifest.json">
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -258,6 +260,7 @@
                     daysSinceDisplay.classList.add('text-stone-900');
                 }
             } else {
+                daysSinceDisplay.classList.add('text-stone-900');
                 daysSinceDisplay.textContent = '--';
             }
 
