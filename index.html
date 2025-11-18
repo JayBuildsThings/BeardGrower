@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beard Cycle Tracker</title>
+    <title>Beard Tracker</title>
     <!-- REQUIRED for PWA Installation to work -->
     <link rel="manifest" href="manifest.json">
     <!-- Load Tailwind CSS -->
@@ -51,7 +51,7 @@
         <!-- Header and Today's Date -->
         <header class="text-center w-full">
             <!-- Accent: Deep Brown/Maroon -->
-            <h1 class="text-3xl font-bold mb-1 text-red-800">Growth Cycle Tracker</h1>
+            <h1 class="text-3xl font-bold mb-1 text-red-800">Beard Tracker</h1>
             <p id="today-date" class="text-sm font-medium text-stone-500"></p>
         </header>
 
@@ -100,7 +100,7 @@
 
         <!-- Custom Message/Alert Box (Not using alert()) -->
         <!-- Adjusted colors for better contrast on a light background -->
-        <div id="alert-message-box" class="hidden message-box w-11/12 max-w-sm bg-red-600 p-4 rounded-lg shadow-xl text-center border border-red-700" role="alert">
+        <div id="alert-message-box" class="hidden message-box w-11/12 max-w-sm bg-red-700 p-4 rounded-lg shadow-xl text-center border border-red-800" role="alert">
             <p id="alert-text" class="text-sm font-semibold text-white">Placeholder message</p>
             <button onclick="document.getElementById('alert-message-box').classList.add('hidden')" class="mt-2 text-xs text-red-100 hover:text-white underline">Dismiss</button>
         </div>
