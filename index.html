@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beard Cycle Tracker</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a clean, mobile-first design */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Barber Theme: Cream/Off-white background */
+            background-color: #fcf8f3; 
+            /* Dark Brown Text */
+            color: #3a2e2c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px; /* Max width for phone display */
+        }
+        .action-button {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-900">
+
+    <div class="container flex flex-col items-center space-y-6">
+
+        <!-- Header and Today's Date -->
+        <header class="text-center w-full">
+            <!-- Accent: Deep Brown/Maroon -->
+            <h1 class="text-3xl font-bold mb-1 text-red-800">Growth Cycle Tracker</h1>
+            <p id="today-date" class="text-sm font-medium text-stone-500"></p>
+        </header>
+
+        <!-- Status Card -->
+        <div class="w-full bg-white p-6 rounded-xl shadow-lg border border-stone-200 space-y-4">
+            <div class="flex justify-between items-center border-b border-stone-300 pb-3">
+                <span class="text-lg font-semibold text-stone-600">Days Since Shave:</span>
+                <!-- Text color is now dark -->
+                <span id="days-since" class="text-4xl font-extrabold text-stone-900">--</span>
+            </div>
+
+            <div class="flex justify-between items-center border-b border-stone-300 pb-3">
+                <span class="text-lg font-semibold text-stone-600">Last Shave Date:</span>
+                <!-- Accent: Red for last action -->
+                <span id="last-shave" class="text-base font-medium text-red-600">N/A</span>
+            </div>
+
+            <div class="flex justify-between items-center pt-2">
+                <span class="text-lg font-semibold text-stone-600">Avg. Cycle Length:</span>
+                <!-- Accent: Warm Brown/Green for success metric -->
+                <span id="average-cycle" class="text-2xl font-bold text-amber-700">--</span>
+                <span class="text-sm text-stone-500">days</span>
+            </div>
+            <p id="cycle-count" class="text-xs text-center text-stone-400 mt-2">-- tracked cycles</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="w-full grid grid-cols-2 gap-4 pt-4">
+            <!-- Shaved Button: Deep Maroon/Red (Traditional Barber Pole Red) -->
+            <button id="shaved-button" class="action-button p-4 rounded-xl text-lg font-bold bg-red-700 hover:bg-red-800 text-white shadow-red-500/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5V14z" />
+                </svg>
+                Shaved
+            </button>
+
+            <!-- Looking Good Button: Warm Brown/Amber (Leather/Wood Accents) -->
+            <button id="looking-good-button" class="action-button p-4 rounded-xl text-lg font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.01 12.01 0 002.944 12c.045 1.559.156 3.061.356 4.476.54 3.39 2.057 6.398 4.665 8.257a12 12 0 0014.237 0c2.608-1.859 4.125-4.867 4.665-8.257a12.01 12.01 0 00-.356-4.476c-1.559-.045-3.061-.156-4.476-.356z" />
+                </svg>
+                Looking Good
+            </button>
+        </div>
+
+        <!-- Custom Message/Alert Box (Not using alert()) -->
+        <!-- Adjusted colors for better contrast on a light background -->
+        <div id="alert-message-box" class="hidden message-box w-11/12 max-w-sm bg-red-600 p-4 rounded-lg shadow-xl text-center border border-red-700" role="alert">
+            <p id="alert-text" class="text-sm font-semibold text-white">Placeholder message</p>
+            <button onclick="document.getElementById('alert-message-box').classList.add('hidden')" class="mt-2 text-xs text-red-100 hover:text-white underline">Dismiss</button>
+        </div>
+
+        <!-- PWA Install Prompt Banner -->
+        <!-- Changed banner to a deep, earthy brown -->
+        <div id="install-banner" class="fixed bottom-0 left-0 right-0 p-4 bg-stone-700 shadow-2xl hidden z-20">
+            <div class="container mx-auto max-w-sm flex items-center justify-between">
+                <p class="text-sm font-medium text-white">Install the app for quick tracking!</p>
+                <button id="install-button" class="text-xs font-bold py-1 px-3 rounded-full bg-amber-500 hover:bg-amber-600 transition text-stone-900">
+                    Install Now
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Configuration and State ---
+        const LOCAL_STORAGE_KEYS = {
+            LAST_SHAVE: 'bgt_lastShaveDate',
+            CYCLES: 'bgt_growthCycles',
+            PROMPT_COUNT: 'bgt_installPromptCount'
+        };
+
+        let lastShaveDate = localStorage.getItem(LOCAL_STORAGE_KEYS.LAST_SHAVE);
+        let growthCycles = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.CYCLES) || '[]');
+        let installPromptCount = parseInt(localStorage.getItem(LOCAL_STORAGE_KEYS.PROMPT_COUNT) || '0', 10);
+        let deferredPrompt = null; // Will store the beforeinstallprompt event
+
+        // --- Utility Functions ---
+
+        /**
+         * Calculates the difference in days between two date strings (YYYY-MM-DD).
+         * @param {string} date1Str - The start date string.
+         * @param {string} date2Str - The end date string.
+         * @returns {number} The difference in days.
+         */
+        function getDateDifferenceInDays(date1Str, date2Str) {
+            const oneDay = 1000 * 60 * 60 * 24;
+            const date1 = new Date(date1Str);
+            const date2 = new Date(date2Str);
+            // Time difference in milliseconds
+            const timeDiff = date2.getTime() - date1.getTime();
+            // Convert to days and round to handle daylight saving time changes properly
+            return Math.round(timeDiff / oneDay);
+        }
+
+        /**
+         * Gets the current date formatted as YYYY-MM-DD.
+         * @returns {string} Current date string.
+         */
+        function getCurrentDateString() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        /**
+         * Formats a YYYY-MM-DD date string to a more readable format (e.g., Nov 18, 2025).
+         * @param {string} dateStr - The date string to format.
+         * @returns {string} The formatted date string.
+         */
+        function formatDateReadable(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            // Adjust for timezone offset to ensure the date is correct
+            date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+            return new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }).format(date);
+        }
+
+        /**
+         * Displays a custom alert message on the screen.
+         * @param {string} message - The message to display.
+         * @param {string} [type='red'] - The background color type (e.g., 'red', 'green', 'yellow').
+         */
+        function showAlert(message, type = 'red') {
+            const box = document.getElementById('alert-message-box');
+            const text = document.getElementById('alert-text');
+            // Ensure classes are reset before adding new ones
+            box.className = `message-box w-11/12 max-w-sm p-4 rounded-lg shadow-xl text-center border`;
+
+            // Apply color classes
+            let bgColor;
+            let borderColor;
+            if (type === 'green') {
+                // Use a darker green for contrast on light theme
+                bgColor = 'bg-green-700';
+                borderColor = 'border-green-800';
+            } else if (type === 'yellow') {
+                // Use a darker amber for contrast on light theme
+                bgColor = 'bg-amber-600';
+                borderColor = 'border-amber-700';
+            } else { // default to red/error
+                bgColor = 'bg-red-700';
+                borderColor = 'border-red-800';
+            }
+
+            box.classList.add(bgColor, borderColor);
+            text.textContent = message;
+            box.classList.remove('hidden');
+        }
+
+        // --- UI Update Functions ---
+
+        /**
+         * Calculates and updates the average cycle length display.
+         */
+        function updateAverage() {
+            const averageDisplay = document.getElementById('average-cycle');
+            const countDisplay = document.getElementById('cycle-count');
+
+            if (growthCycles.length === 0) {
+                averageDisplay.textContent = '--';
+                countDisplay.textContent = 'No cycles tracked yet.';
+                return;
+            }
+
+            const totalDays = growthCycles.reduce((sum, days) => sum + days, 0);
+            const average = (totalDays / growthCycles.length).toFixed(1);
+
+            averageDisplay.textContent = average;
+            countDisplay.textContent = `${growthCycles.length} tracked cycle${growthCycles.length !== 1 ? 's' : ''}`;
+        }
+
+        /**
+         * Updates all dynamic content on the UI.
+         */
+        function updateUI() {
+            const currentDate = getCurrentDateString();
+            document.getElementById('today-date').textContent = formatDateReadable(currentDate);
+            document.getElementById('last-shave').textContent = formatDateReadable(lastShaveDate);
+
+            const daysSinceDisplay = document.getElementById('days-since');
+            
+            // Reset text colors before updating
+            daysSinceDisplay.classList.remove('text-yellow-700', 'text-stone-900');
+
+            if (lastShaveDate) {
+                const daysSince = getDateDifferenceInDays(lastShaveDate, currentDate);
+                daysSinceDisplay.textContent = daysSince;
+                
+                // Highlight logic adjusted for new color scheme (dark text)
+                if (growthCycles.length > 0) {
+                    const totalDays = growthCycles.reduce((sum, days) => sum + days, 0);
+                    const avgDays = totalDays / growthCycles.length;
+                    
+                    // Highlight yellow/amber when near the average
+                    if (daysSince >= avgDays - 1) {
+                        daysSinceDisplay.classList.add('text-amber-700');
+                    } else {
+                        daysSinceDisplay.classList.add('text-stone-900');
+                    }
+                } else {
+                    daysSinceDisplay.classList.add('text-stone-900');
+                }
+            } else {
+                daysSinceDisplay.textContent = '--';
+            }
+
+            updateAverage();
+        }
+
+        // --- Core Logic Handlers ---
+
+        /**
+         * Handles the "Shaved" button click.
+         */
+        function handleShaved() {
+            lastShaveDate = getCurrentDateString();
+            localStorage.setItem(LOCAL_STORAGE_KEYS.LAST_SHAVE, lastShaveDate);
+            updateUI();
+            showAlert('Shave date recorded successfully!', 'green');
+        }
+
+        /**
+         * Handles the "Looking good" button click.
+         */
+        function handleLookingGood() {
+            if (!lastShaveDate) {
+                showAlert('Please click "Shaved" first to set a starting date.');
+                return;
+            }
+
+            const currentDate = getCurrentDateString();
+            const days = getDateDifferenceInDays(lastShaveDate, currentDate);
+
+            if (days < 1) {
+                 showAlert('The "Looking Good" date must be at least one day after the "Shaved" date.');
+                 return;
+            }
+
+            // 1. Record the cycle length
+            growthCycles.push(days);
+            localStorage.setItem(LOCAL_STORAGE_KEYS.CYCLES, JSON.stringify(growthCycles));
+
+            // 2. Display the current cycle length recorded
+            showAlert(`Cycle recorded: ${days} days!`, 'green');
+
+            // 3. Reset the last shave date to today (assuming the user will shave soon/now)
+            // This prepares for the next cycle tracking.
+            lastShaveDate = currentDate;
+            localStorage.setItem(LOCAL_STORAGE_KEYS.LAST_SHAVE, lastShaveDate);
+
+            // 4. Update UI
+            updateUI();
+        }
+
+        // --- PWA Installation Prompt Logic ---
+
+        /**
+         * Handles the 'beforeinstallprompt' event to store the event and show the custom banner.
+         */
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+
+            const banner = document.getElementById('install-banner');
+
+            // Check if we haven't asked 3 times yet
+            if (installPromptCount < 3) {
+                banner.classList.remove('hidden');
+                // Increment and save count immediately upon showing the banner
+                installPromptCount++;
+                localStorage.setItem(LOCAL_STORAGE_KEYS.PROMPT_COUNT, installPromptCount.toString());
+            }
+
+            // Hide banner if user manually closes it or when installed
+            document.getElementById('install-button').onclick = () => {
+                banner.classList.add('hidden');
+                // Show the official prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        // Optionally reset count if installed, or just keep it at 3
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            };
+        });
+
+        // --- Initialization ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('shaved-button').addEventListener('click', handleShaved);
+            document.getElementById('looking-good-button').addEventListener('click', handleLookingGood);
+            updateUI();
+        });
+    </script>
+</body>
+</html>
